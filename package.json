@@ -1,0 +1,25 @@
+{
+  "name": "pairrelay",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Live shared AI coding sessions via MCP + WebSocket relay",
+  "scripts": {
+    "build": "pnpm -r run build",
+    "dev:relay": "pnpm --filter @pairrelay/relay dev",
+    "pairrelay": "node packages/cli/dist/index.js",
+    "test:sync": "node scripts/test-sync.mjs",
+    "test:phase-b": "node scripts/test-phase-b.mjs",
+    "test:phase-c": "node scripts/test-phase-c.mjs",
+    "test:e2e": "node scripts/test-e2e-share-join.mjs",
+    "test": "node scripts/test-sync.mjs && node scripts/test-phase-b.mjs && node scripts/test-phase-c.mjs && node scripts/test-e2e-share-join.mjs",
+    "typecheck": "pnpm -r run typecheck"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.21",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@10.11.0"
+}

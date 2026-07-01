@@ -1,0 +1,20 @@
+# Private local planning (never publish)
+.local/
+
+# Dependencies & build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Secrets & local env
+.env
+.env.*
+
+# Editor / AI (machine-specific)
+.cursor/
+.claude/
+mcp-stderr.txt
+
+# OS
+.DS_Store
+Thumbs.db

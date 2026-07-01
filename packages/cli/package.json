@@ -1,0 +1,39 @@
+{
+  "name": "pairrelay",
+  "version": "0.1.0",
+  "description": "Live shared AI coding sessions via MCP + WebSocket relay",
+  "type": "module",
+  "bin": {
+    "pairrelay": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "cursor",
+    "ai",
+    "collaboration",
+    "pair-programming"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pairrelay/pairrelay",
+    "directory": "code/packages/cli"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@pairrelay/daemon": "workspace:*",
+    "@pairrelay/shared": "workspace:*",
+    "commander": "^14.0.0"
+  }
+}
