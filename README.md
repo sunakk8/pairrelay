@@ -33,7 +33,7 @@ pairrelay share
 pairrelay join <session-id> --token <token>
 ```
 
-Optional auth for dogfood:
+Optional auth:
 
 ```bash
 export PAIRRELAY_RELAY_API_KEYS="your-team-key"
