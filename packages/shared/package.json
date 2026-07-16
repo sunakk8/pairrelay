@@ -1,10 +1,22 @@
 {
   "name": "@pairrelay/shared",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1",
+  "description": "Shared types and protocol for pairrelay",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sunakk8/pairrelay.git",
+    "directory": "packages/shared"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",

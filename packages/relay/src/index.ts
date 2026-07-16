@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-import { DEFAULT_RELAY_PORT } from "@pairrelay/shared";
 import { createRelayServer } from "./server.js";
 import { authRequired, loadRelayAuthConfig } from "./auth.js";
+import { resolvePublicUrl, resolveRelayPort } from "./deploy-env.js";
 
-const port = Number(process.env.PAIRRELAY_RELAY_PORT ?? DEFAULT_RELAY_PORT);
+const port = resolveRelayPort();
 const host = process.env.PAIRRELAY_RELAY_HOST ?? "0.0.0.0";
 const auth = loadRelayAuthConfig();
 
@@ -11,7 +11,7 @@ const { app, relayPublicUrl, githubOAuthEnabled } = await createRelayServer({
   host: "localhost",
   port,
   auth,
-  publicUrl: process.env.PAIRRELAY_RELAY_PUBLIC_URL,
+  publicUrl: resolvePublicUrl(),
 });
 
 try {

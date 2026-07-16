@@ -1,5 +1,3 @@
-import { randomUUID } from "node:crypto";
-import { hostname } from "node:os";
 import type { SessionMessage } from "@pairrelay/shared";
 import { readCredentials } from "@pairrelay/shared";
 import { SessionClient, readActiveSession } from "@pairrelay/daemon";
@@ -20,7 +18,6 @@ export async function runPost(content: string, options: PostOptions = {}): Promi
   const credentials = await readCredentials();
   const config = {
     ...active,
-    participant_id: `${hostname()}-post-${randomUUID().slice(0, 6)}`,
     api_key: active.api_key ?? credentials?.api_key,
   };
 

@@ -7,6 +7,8 @@
     "build": "pnpm -r run build",
     "dev:relay": "pnpm --filter @pairrelay/relay dev",
     "pairrelay": "node packages/cli/dist/index.js",
+    "prepack:cli": "node scripts/prepack-cli.mjs",
+    "publish:npm": "pnpm -r build && pnpm prepack:cli && pnpm publish -r --access public --no-git-checks --filter @pairrelay/shared --filter @pairrelay/daemon --filter pairrelay",
     "test:sync": "node scripts/test-sync.mjs",
     "test:phase-b": "node scripts/test-phase-b.mjs",
     "test:phase-c": "node scripts/test-phase-c.mjs",

@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import type { RelayAuthConfig } from "./auth.js";
+import { resolvePublicUrl, resolveRelayPort } from "./deploy-env.js";
 
 export interface GitHubAuthConfig {
   clientId: string;
@@ -26,7 +27,7 @@ export function loadGitHubAuthConfig(): GitHubAuthConfig | null {
   const clientId = process.env.PAIRRELAY_GITHUB_CLIENT_ID?.trim();
   const clientSecret = process.env.PAIRRELAY_GITHUB_CLIENT_SECRET?.trim();
   const publicUrl = (
-    process.env.PAIRRELAY_RELAY_PUBLIC_URL ?? `http://localhost:${process.env.PAIRRELAY_RELAY_PORT ?? 8787}`
+    resolvePublicUrl() ?? `http://localhost:${resolveRelayPort()}`
   ).replace(/\/$/, "");
 
   if (!clientId || !clientSecret) {
