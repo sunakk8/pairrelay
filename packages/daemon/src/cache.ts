@@ -11,8 +11,22 @@ export async function ensurePairrelayDir(): Promise<void> {
   await mkdir(PAIRRELAY_DIR, { recursive: true });
 }
 
+export async function clearSessionCache(): Promise<void> {
+  const { unlink } = await import("node:fs/promises");
+  try {
+    await unlink(SESSION_CACHE_PATH);
+  } catch {
+    // no session cache file
+  }
+}
+
+/**
+ * Persist the active session and drop any stale session-cache.json so MCP
+ * cannot serve a previous session after share/join switches sessions.
+ */
 export async function writeActiveSession(config: ActiveSessionConfig): Promise<void> {
   await ensurePairrelayDir();
+  await clearSessionCache();
   await writeFile(ACTIVE_SESSION_PATH, JSON.stringify(config, null, 2), "utf8");
 }
 

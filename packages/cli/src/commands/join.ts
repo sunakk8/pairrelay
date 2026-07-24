@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import { hostname } from "node:os";
-import { type ActiveSessionConfig, readCredentials } from "@pairrelay/shared";
+import { ACTIVE_SESSION_PATH, type ActiveSessionConfig, readCredentials } from "@pairrelay/shared";
 import { SessionClient, writeActiveSession, clearActiveSession } from "@pairrelay/daemon";
 import { getSession, resolveRelayUrl } from "../relay-api.js";
 import { attachClientLogging, waitForShutdown } from "./share.js";
@@ -33,6 +33,9 @@ export async function runJoin(
   };
 
   await writeActiveSession(config);
+  console.log(`Active session written: ${ACTIVE_SESSION_PATH}`);
+  console.log(`  session_id: ${sessionId}`);
+
   const client = new SessionClient(config, { reconnect: true });
   attachClientLogging(client, "join");
 

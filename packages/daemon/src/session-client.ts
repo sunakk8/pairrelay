@@ -218,6 +218,15 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
 
     switch (event.type) {
       case "session.snapshot":
+        if (event.session.session_id !== this.activeConfig.session_id) {
+          this.emit(
+            "error",
+            new Error(
+              `Ignoring snapshot for ${event.session.session_id}; active session is ${this.activeConfig.session_id}`,
+            ),
+          );
+          break;
+        }
         this.session = event.session;
         await writeSessionCache(event.session);
         this.emit("snapshot", event.session);

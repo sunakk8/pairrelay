@@ -7,7 +7,7 @@ import {
 import { z } from "zod";
 import { generateSessionSummary, readCredentials } from "@pairrelay/shared";
 import { SessionClient } from "./session-client.js";
-import { readActiveSession, readSessionCache } from "./cache.js";
+import { clearSessionCache, readActiveSession, readSessionCache } from "./cache.js";
 
 const PostMessageSchema = z.object({
   content: z.string().min(1),
@@ -69,14 +69,19 @@ export async function startMcpServer(): Promise<void> {
     async function resolveSession() {
       const active = await readActiveSession();
       const cached = await readSessionCache();
+      if (cached && active && cached.session_id !== active.session_id) {
+        // Stale cache from a previous join/share — drop it so MCP cannot serve the old session.
+        await clearSessionCache();
+        return { session: null, active, staleCacheSessionId: cached.session_id };
+      }
       const session =
         cached && active && cached.session_id === active.session_id ? cached : null;
-      return { session, active };
+      return { session, active, staleCacheSessionId: null as string | null };
     }
 
     switch (request.params.name) {
       case "pairrelay_get_session": {
-        const { session, active } = await resolveSession();
+        const { session, active, staleCacheSessionId } = await resolveSession();
         if (!session) {
           if (!active) {
             return {
@@ -96,7 +101,9 @@ export async function startMcpServer(): Promise<void> {
                 text: JSON.stringify(
                   {
                     session_id: active.session_id,
-                    note: "Session not synced yet. Ensure `pairrelay share` or `pairrelay join` is running.",
+                    note: staleCacheSessionId
+                      ? `Cleared stale cache for ${staleCacheSessionId}. Ensure join/share is running for ${active.session_id}, then retry.`
+                      : "Session not synced yet. Ensure `pairrelay share` or `pairrelay join` is running.",
                   },
                   null,
                   2,
