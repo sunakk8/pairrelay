@@ -11,8 +11,9 @@ packages/cli/README.md
 .env
 .env.*
 
-# Editor / AI (machine-specific)
-.cursor/
+# Editor / AI (machine-specific), keep project MCP config sticky
+.cursor/*
+!.cursor/mcp.json
 .claude/
 mcp-stderr.txt
 

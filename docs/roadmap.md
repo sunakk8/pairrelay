@@ -4,38 +4,29 @@ Living plan for what ships next. RAG is on the roadmap but **not** for the curre
 
 ## Where we are
 
-**Phase 1 (MVP) — nearly closed**
+**Phase 1 (MVP) — complete**
 
 - Core product: WebSocket relay, CLI `share` / `join`, MCP tools, auth, join tokens, landing page
 - Hosted relay: `https://pairrelay.fly.dev`
 - CLI on npm: `pairrelay@0.1.1`
 - Two-laptop CLI share/join validated
-- Agent↔agent MCP smoke test (A post → B get, and reverse) still the active gate
+- Agent↔agent MCP smoke test passed (A post → B get, and reverse)
+- Project MCP config is sticky at `.cursor/mcp.json` (tracked in git)
 
 ```text
-Phase1 MVP → MCP verify → release closeout
-    → Phase2A persistence
+Phase1 MVP (done) → Phase2A persistence
     → Phase2B RAG (session memory, then repo)
     → Phase3 teams + metrics
 ```
 
 ---
 
-## Immediate next (before calling Phase 1 done)
+## Immediate next
 
-1. **Finish two-laptop MCP smoke test**
-   - Laptop A: `pairrelay_post_message` → Laptop B: `pairrelay_get_session`
-   - Laptop B: `pairrelay_post_message` → Laptop A: `pairrelay_get_session`
-   - Optional: `pairrelay_get_session_summary` on either side
-2. **Release hygiene**
-   - Merge deploy + session-cache fixes → `main`
-   - Confirm Fly secrets (`PAIRRELAY_RELAY_API_KEYS`, `PAIRRELAY_RELAY_SECRET`)
-   - Keep **exactly 1** Fly machine until persistence exists
-   - Tag / publish npm if needed
-3. **Docs**
-   - README two-laptop + MCP checklist as the primary happy path
+1. **Phase 2A — Persistence** (see below)
+2. Optional release hygiene: confirm Fly secrets; keep **exactly 1** Fly machine until persistence exists; tag/publish if needed
 
-**Phase 1 definition of done:** a teammate can `npm i -g pairrelay`, join a hosted session, and both Cursor agents can read/write the shared transcript via MCP.
+**Phase 1 definition of done (met):** a teammate can `npm i -g pairrelay`, join a hosted session, and both Cursor agents can read/write the shared transcript via MCP.
 
 ---
 
@@ -82,17 +73,15 @@ Not a generic “chat with your repo” feature. RAG feeds the **shared pairing 
 - Building persistence
 - Team/org auth
 
-Finish Phase 1 MCP verification and release closeout first.
+Phase 1 is complete. Next implementation work is Phase 2A persistence.
 
 ---
 
-## Suggested sequence after MCP verify passes
+## Suggested sequence
 
-1. Merge PRs → `main`, tag/publish
-2. Keep this roadmap updated as scope changes
-3. Start Phase 2 with **persistence only**
-4. Add **session-memory RAG + MCP retrieve** once transcripts are stored
-5. Repo RAG and teams after that
+1. Start Phase 2 with **persistence only**
+2. Add **session-memory RAG + MCP retrieve** once transcripts are stored
+3. Repo RAG and teams after that
 
 ---
 

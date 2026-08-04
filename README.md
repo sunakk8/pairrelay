@@ -44,18 +44,20 @@ pairrelay login --api-key your-team-key
 
 ## Cursor MCP
 
-Copy `mcp.json.example` to `.cursor/mcp.json` (or your user MCP settings) and adjust the path after `pnpm build`:
+This repo tracks a sticky project MCP config at [`.cursor/mcp.json`](.cursor/mcp.json) (kept in git; not wiped by `.cursor/` cleanups). After `npm install -g pairrelay` (or linking from source), reload MCP in Cursor.
 
 ```json
 {
   "mcpServers": {
     "pairrelay": {
-      "command": "node",
-      "args": ["packages/cli/dist/index.js", "mcp"]
+      "command": "pairrelay",
+      "args": ["mcp"]
     }
   }
 }
 ```
+
+You can also copy [`mcp.json.example`](mcp.json.example) into user-level Cursor MCP settings if you prefer a global config.
 
 Workflow:
 
