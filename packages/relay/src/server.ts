@@ -120,7 +120,7 @@ export async function createRelayServer(options: RelayServerOptions = {}) {
 
   await app.register(websocket);
 
-
+  app.get("/health", async () => ({ ok: true }));
 
   const roomSockets = new Map<string, Set<WebSocket>>();
   const socketMeta = new Map<WebSocket, { sessionId: string; participantId: string }>();
@@ -417,7 +417,11 @@ export async function createRelayServer(options: RelayServerOptions = {}) {
 
 
 
-    const joinCommand = `pairrelay join ${session.session_id} --token ${joinToken}`;
+    const joinCommandBase = `pairrelay join ${session.session_id} --token ${joinToken}`;
+    const joinCommand =
+      relayPublicUrl.includes("localhost")
+        ? joinCommandBase
+        : `${joinCommandBase} --relay-url ${relayPublicUrl}`;
 
     const joinPageUrl = `${relayPublicUrl}/join/${session.session_id}?token=${encodeURIComponent(joinToken)}`;
 

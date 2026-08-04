@@ -1,0 +1,17 @@
+node_modules
+dist
+*.tsbuildinfo
+.git
+.github
+.cursor
+.claude
+.local
+.env
+.env.*
+**/*.md
+!README.md
+scripts
+packages/cli
+packages/daemon
+mcp.json.example
+.DS_Store

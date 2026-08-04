@@ -1,6 +1,6 @@
 {
   "name": "pairrelay",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Live shared AI coding sessions via MCP + WebSocket relay",
   "type": "module",
   "bin": {
@@ -23,8 +23,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/pairrelay/pairrelay",
-    "directory": "code/packages/cli"
+    "url": "https://github.com/sunakk8/pairrelay.git",
+    "directory": "packages/cli"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",

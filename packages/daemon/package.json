@@ -1,10 +1,22 @@
 {
   "name": "@pairrelay/daemon",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1",
+  "description": "Session client and MCP server for pairrelay",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sunakk8/pairrelay.git",
+    "directory": "packages/daemon"
+  },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
