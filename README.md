@@ -1,176 +1,118 @@
 # pairrelay
 
-Live shared AI coding sessions for engineering teams. Connect Cursor (or any MCP client) to a teammate's session via CLI + WebSocket relay.
+Live shared AI coding sessions for engineering teams. Connect Cursor (or any MCP client) to a teammate’s session via CLI + WebSocket relay.
 
-## Install
+## How it works
+
+1. You run a **relay** (a small server that holds the shared session).
+2. Each person installs the **CLI** and connects with `share` or `join`.
+3. Cursor talks to that session through **MCP** tools.
+
+You can use the public demo relay, or deploy your own (recommended for real use).
+
+## 1. Install the CLI
 
 ```bash
 npm install -g pairrelay
 ```
 
-From source (development):
+Requires Node.js 20+.
+
+## 2. Run a relay
+
+### Option A — Use the demo relay
+
+```text
+https://pairrelay.fly.dev
+```
+
+Fine for trying pairrelay. For your own team, deploy your own relay (Option B) so you control the API key and uptime.
+
+### Option B — Deploy your own relay (Fly.io)
+
+From this repo (with [Fly CLI](https://fly.io/docs/hands-on/install-flyctl/) installed and logged in):
 
 ```bash
 git clone https://github.com/sunakk8/pairrelay.git
 cd pairrelay
-pnpm install
-pnpm build
-pnpm setup
-cd packages/cli && pnpm link --global
+fly launch          # uses the included Dockerfile + fly.toml
+fly secrets set \
+  PAIRRELAY_RELAY_API_KEYS="pick-a-team-key" \
+  PAIRRELAY_RELAY_SECRET="$(openssl rand -hex 32)"
+fly deploy
+fly scale count 1   # important: sessions are in-memory — use exactly 1 machine
 ```
 
-## Quick start
-
-Start the relay (local dev):
+Your relay URL will look like `https://<your-app>.fly.dev`. Check it:
 
 ```bash
-pnpm dev:relay
+curl https://<your-app>.fly.dev/health
+# {"ok":true}
 ```
 
-In another terminal:
+Give teammates that URL and the API key you set as `PAIRRELAY_RELAY_API_KEYS`.
+
+## 3. Log in (each machine)
+
+```bash
+pairrelay login --relay-url https://<your-app>.fly.dev --api-key YOUR_TEAM_KEY
+```
+
+## 4. Cursor MCP
+
+This repo includes a project MCP config at [`.cursor/mcp.json`](.cursor/mcp.json). After installing the CLI, reload MCP in Cursor (or restart Cursor).
+
+Tools:
+
+- `pairrelay_get_session`
+- `pairrelay_post_message`
+- `pairrelay_get_session_summary`
+
+Prefer a global Cursor config? Copy [`mcp.json.example`](mcp.json.example) into your user MCP settings.
+
+## 5. Share a session (host)
+
+Leave this terminal running:
 
 ```bash
 pairrelay share
+```
+
+Send your teammate the **Join cmd** (or join page URL) from the output.
+
+## 6. Join a session
+
+Leave this terminal running:
+
+```bash
 pairrelay join <session-id> --token <token>
 ```
 
-Optional auth:
+Add `--relay-url https://<your-app>.fly.dev` if you didn’t log in with that URL yet.
 
-```bash
-export PAIRRELAY_RELAY_API_KEYS="your-team-key"
-export PAIRRELAY_RELAY_SECRET="a-long-random-secret"
-pairrelay login --api-key your-team-key
-```
+## 7. Use it in Cursor
 
-## Cursor MCP
+With `share` / `join` still running:
 
-This repo tracks a sticky project MCP config at [`.cursor/mcp.json`](.cursor/mcp.json) (kept in git; not wiped by `.cursor/` cleanups). After `npm install -g pairrelay` (or linking from source), reload MCP in Cursor.
+1. Ask your agent to `pairrelay_post_message` to write to the shared session.
+2. Ask your agent to `pairrelay_get_session` to read the shared transcript.
 
-```json
-{
-  "mcpServers": {
-    "pairrelay": {
-      "command": "pairrelay",
-      "args": ["mcp"]
-    }
-  }
-}
-```
-
-You can also copy [`mcp.json.example`](mcp.json.example) into user-level Cursor MCP settings if you prefer a global config.
-
-Workflow:
-
-1. Run `pairrelay share` or `pairrelay join` in a terminal (keeps the relay connection open).
-2. In Cursor, ask the agent to call `pairrelay_get_session` or `pairrelay_post_message`.
+Both sides’ agents read and write the same live session.
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `pairrelay login` | Authenticate (GitHub OAuth or API key) |
+| `pairrelay login` | Save relay URL and API key |
 | `pairrelay share` | Create and host a shared session |
 | `pairrelay join <id>` | Join an existing session |
-| `pairrelay post <msg>` | Post to the active session |
-| `pairrelay leave` | Disconnect from the active session |
-| `pairrelay mcp` | Start MCP server for Cursor |
+| `pairrelay post <msg>` | Post a message from the CLI |
+| `pairrelay leave` | Leave the active session |
+| `pairrelay mcp` | Start the MCP server (used by Cursor) |
 
-## Tests
+## Tips
 
-```bash
-pnpm build
-pnpm test
-```
-
-## Cloud deploy (two laptops)
-
-The relay is a WebSocket server — both laptops connect to the **same hosted relay** instead of one machine exposing a LAN port.
-
-### Fly.io vs Railway
-
-| | **Fly.io** (recommended) | **Railway** |
-|---|---|---|
-| WebSockets | First-class, long-lived connections | Supported |
-| Idle behavior | `auto_stop_machines = off` in `fly.toml` keeps sessions alive | Service stays up on paid plans |
-| Setup | `fly launch` + `fly secrets set` | Connect repo, set env vars |
-| Public URL | Auto: `https://<app>.fly.dev` | Auto: `https://<id>.up.railway.app` |
-
-**Recommendation: Fly.io** for pairrelay — WebSocket sessions can run for hours and Fly is built around persistent connections. Railway is fine for a quick test if you already use it.
-
-### 1. Deploy the relay
-
-**Fly.io:**
-
-```bash
-fly launch          # picks Dockerfile + fly.toml; choose a unique app name
-fly secrets set \
-  PAIRRELAY_RELAY_API_KEYS="your-team-key" \
-  PAIRRELAY_RELAY_SECRET="$(openssl rand -hex 32)"
-fly deploy
-```
-
-**Railway:** New project → Deploy from GitHub → set the same secrets from `.env.example` in the Railway dashboard → deploy.
-
-`PAIRRELAY_RELAY_PUBLIC_URL` is optional on both platforms (auto-detected from `FLY_APP_NAME` or `RAILWAY_PUBLIC_DOMAIN`).
-
-### 2. Configure both laptops
-
-On **each** machine:
-
-```bash
-pairrelay login --relay-url https://your-relay.fly.dev --api-key your-team-key
-```
-
-Copy `mcp.json.example` into Cursor MCP settings (see above).
-
-### 3. Start a session
-
-**Laptop A (host):**
-
-```bash
-pairrelay share --relay-url https://your-relay.fly.dev
-```
-
-Copy the `Join cmd` line from the output.
-
-**Laptop B (joiner):**
-
-```bash
-pairrelay join <session-id> --token <token> --relay-url https://your-relay.fly.dev
-```
-
-Both laptops keep `share` / `join` running in a terminal. Ask Cursor to call `pairrelay_get_session` or `pairrelay_post_message`.
-
-## Publish to npm (maintainers)
-
-Publishes three packages: `@pairrelay/shared`, `@pairrelay/daemon`, and `pairrelay`.
-
-**One-time setup:**
-1. Create the `@pairrelay` org at [npmjs.com](https://www.npmjs.com/org/create) (free for public packages)
-2. Log in: `npm login`
-3. Add your npm user to the `@pairrelay` org
-
-**Publish a new version** (bump `0.1.1` in all three `package.json` files first):
-
-```bash
-pnpm publish:npm
-```
-
-Uses `--no-git-checks` so you can publish without committing first. Commit/tag releases when you're ready to track them in git.
-
-**Laptop B — install or update:**
-
-```bash
-npm install -g pairrelay@latest
-pairrelay --help
-```
-
-## Roadmap
-
-See [docs/roadmap.md](docs/roadmap.md) for Phase 1 closeout, Phase 2 persistence + RAG (planned), and Phase 3 teams/metrics.
-
-## Requirements
-
-- Node.js 20+
-- pnpm 10+
-- Cursor with MCP enabled (or any MCP stdio client)
+- Keep the `share` / `join` terminal open while pairing — that process holds the relay connection and updates local session state for MCP.
+- If Cursor shows an old session, run `pairrelay leave`, delete `~/.pairrelay/session-cache.json` if needed, re-join, and reload MCP.
+- The browser join page is install/join instructions only — live messages appear in the CLI and via MCP, not on that page.
+- Until the relay has durable storage, keep **one** Fly machine (`fly scale count 1`) so every join hits the same session memory.
