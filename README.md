@@ -163,6 +163,10 @@ npm install -g pairrelay@latest
 pairrelay --help
 ```
 
+## Roadmap
+
+See [docs/roadmap.md](docs/roadmap.md) for Phase 1 closeout, Phase 2 persistence + RAG (planned), and Phase 3 teams/metrics.
+
 ## Requirements
 
 - Node.js 20+
