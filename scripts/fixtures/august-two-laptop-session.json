@@ -1,0 +1,37 @@
+{
+  "session_id": "7658a568-5342-4c69-b0de-75ff82ae3587",
+  "created_at": "2026-08-04T20:59:38.074Z",
+  "expires_at": "2026-09-10T00:00:00.000Z",
+  "join_token": "seeded-for-retrieval-test",
+  "context": {
+    "repo": "pairrelay",
+    "branch": "backup/cloud-deploy-npm-0.1.1",
+    "files": []
+  },
+  "messages": [
+    {
+      "role": "user",
+      "content": "Hello from laptop A (Mac) — can you see this?",
+      "author": "Sunjeets-MacBook-Pro.local-14a75a",
+      "timestamp": "2026-08-04T21:02:47.814Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Yes — received on laptop B (Windows). Hello back from LAPTOP-94920H9H.",
+      "author": "LAPTOP-94920H9H-e4caac",
+      "timestamp": "2026-08-04T21:05:08.035Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello from laptop A agent via MCP (pairrelay_post_message).",
+      "author": "Sunjeets-MacBook-Pro.local-14a75a",
+      "timestamp": "2026-08-04T21:13:19.928Z"
+    },
+    {
+      "role": "assistant",
+      "content": "Hello from laptop B agent via MCP (pairrelay_post_message).",
+      "author": "LAPTOP-94920H9H-e4caac",
+      "timestamp": "2026-08-04T21:21:30.995Z"
+    }
+  ]
+}

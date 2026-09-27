@@ -45,6 +45,7 @@ export async function detectRepoContext(cwd = process.cwd()): Promise<SessionCon
       git(["rev-parse", "--show-toplevel"], cwd),
       git(["rev-parse", "--abbrev-ref", "HEAD"], cwd),
     ]);
+    // Cap at MAX_FILES so the session context stays small enough to snapshot over WS.
     const files = await listTrackedFiles(repoRoot);
     const fallbackFiles = files.length > 0 ? files : await listRecentFiles(cwd);
     return {

@@ -2,7 +2,9 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 export const PAIRRELAY_DIR = join(homedir(), ".pairrelay");
+/** Which session this CLI/MCP process is attached to. */
 export const ACTIVE_SESSION_PATH = join(PAIRRELAY_DIR, "active-session.json");
+/** Last snapshot of the transcript, written by SessionClient on WS events. */
 export const SESSION_CACHE_PATH = join(PAIRRELAY_DIR, "session-cache.json");
 export const CREDENTIALS_PATH = join(PAIRRELAY_DIR, "credentials");
 

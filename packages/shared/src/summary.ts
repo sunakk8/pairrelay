@@ -2,6 +2,7 @@ import type { Session, SessionMessage } from "./types.js";
 
 const MAX_SUMMARY_MESSAGES = 20;
 
+/** Keyword heuristic used to pick “decision” lines for the summary. */
 function isDecisionMessage(message: SessionMessage): boolean {
   const text = message.content.toLowerCase();
   const signals = [
@@ -68,6 +69,7 @@ export function generateSessionSummary(session: Session): string {
   }
 
   const recent = messages.slice(-MAX_SUMMARY_MESSAGES);
+  // Prefer decision-ish lines; otherwise last few messages. Cap so the summary stays 3–5 sentences.
   const decisionLike = recent.filter(isDecisionMessage);
   const highlights = (decisionLike.length > 0 ? decisionLike : recent.slice(-5)).slice(-3);
 

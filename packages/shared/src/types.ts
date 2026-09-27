@@ -7,12 +7,14 @@ export interface SessionMessage {
   timestamp: string;
 }
 
+/** Repo snapshot attached at share time (name, branch, up to ~30 file paths). */
 export interface SessionContext {
   repo: string;
   branch: string;
   files: string[];
 }
 
+/** Transcript + repo context as stored on the relay and in session-cache.json. */
 export interface Session {
   session_id: string;
   created_at: string;
@@ -21,6 +23,7 @@ export interface Session {
   context: SessionContext;
 }
 
+/** Pointer this machine is connected to (active-session.json). MCP tools read this. */
 export interface ActiveSessionConfig {
   session_id: string;
   relay_url: string;
@@ -29,6 +32,7 @@ export interface ActiveSessionConfig {
   api_key?: string;
 }
 
+/** POST /sessions body returned to `pairrelay share`. */
 export interface CreateSessionResponse {
   session_id: string;
   join_url: string;

@@ -46,6 +46,7 @@ function parseCallbackUrl(requestUrl: string): CallbackQuery {
 export async function runGitHubLogin(options: GitHubLoginOptions): Promise<void> {
   const relayUrl = await resolveRelayUrl(options.relayUrl);
 
+  // Loopback HTTP server: GitHub → relay callback → redirect here with api_key + sig.
   const { apiKey, githubLogin } = await new Promise<{ apiKey: string; githubLogin?: string }>(
     (resolve, reject) => {
       const server = createServer((req, res) => {
@@ -86,6 +87,7 @@ export async function runGitHubLogin(options: GitHubLoginOptions): Promise<void>
           return;
         }
 
+        // Ephemeral port; relay will redirect the issued key back to this host.
         const cliPort = address.port;
         const authUrl = new URL(`${relayUrl}/auth/github`);
         authUrl.searchParams.set("cli_port", String(cliPort));
@@ -149,6 +151,7 @@ export async function runApiKeyLogin(options: {
   console.log("");
 }
 
+/** `--github` opens a browser; otherwise prompt / `--api-key` writes ~/.pairrelay/credentials. */
 export async function runLogin(options: LoginOptions): Promise<void> {
   if (options.github) {
     await runGitHubLogin({ relayUrl: options.relayUrl });

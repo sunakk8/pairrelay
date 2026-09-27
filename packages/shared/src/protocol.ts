@@ -1,11 +1,13 @@
 import type { Session, SessionMessage } from "./types.js";
 
+/** WS event types the relay sends to clients. */
 export type RelayEvent =
   | { type: "session.snapshot"; session: Session }
   | { type: "message.append"; message: SessionMessage }
   | { type: "participant.join"; participant: string }
   | { type: "participant.leave"; participant: string };
 
+/** WS event types a client may send to the relay. */
 export type ClientEvent =
   | { type: "message.append"; message: Omit<SessionMessage, "timestamp"> & { timestamp?: string } }
   | { type: "participant.leave" };

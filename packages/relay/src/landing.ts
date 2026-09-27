@@ -1,5 +1,6 @@
 const INSTALL_ONE_LINER = "npm install -g pairrelay";
 
+/** HTML join page served at GET /join/:sessionId?token=… */
 export function renderJoinLandingPage(options: {
   sessionId: string;
   token: string;

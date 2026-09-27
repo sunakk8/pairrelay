@@ -36,18 +36,25 @@ From this repo (with [Fly CLI](https://fly.io/docs/hands-on/install-flyctl/) ins
 git clone https://github.com/sunakk8/pairrelay.git
 cd pairrelay
 fly launch          # uses the included Dockerfile + fly.toml
+
+# Durable session storage (survive app machine restarts) — separate Fly services
+fly postgres create --name pairrelay-db --region iad
+fly postgres attach pairrelay-db -a <your-app>   # sets DATABASE_URL
+fly redis create                                # follow prompts; copy the Redis URL
+
 fly secrets set \
   PAIRRELAY_RELAY_API_KEYS="pick-a-team-key" \
-  PAIRRELAY_RELAY_SECRET="$(openssl rand -hex 32)"
+  PAIRRELAY_RELAY_SECRET="$(openssl rand -hex 32)" \
+  REDIS_URL="redis://default:<password>@<redis-host>:6379"
 fly deploy
-fly scale count 1   # important: sessions are in-memory — use exactly 1 machine
+fly scale count 1   # still one app machine until WS pub/sub (Redis/Postgres already shared)
 ```
 
 Your relay URL will look like `https://<your-app>.fly.dev`. Check it:
 
 ```bash
 curl https://<your-app>.fly.dev/health
-# {"ok":true}
+# {"ok":true,"persistence":true}
 ```
 
 Give teammates that URL and the API key you set as `PAIRRELAY_RELAY_API_KEYS`.
@@ -67,6 +74,7 @@ Tools:
 - `pairrelay_get_session`
 - `pairrelay_post_message`
 - `pairrelay_get_session_summary`
+- `pairrelay_retrieve_context` — relevant transcript slices for a query (optional prior sessions when persistence is enabled)
 
 Prefer a global Cursor config? Copy [`mcp.json.example`](mcp.json.example) into your user MCP settings.
 
@@ -115,4 +123,4 @@ Both sides’ agents read and write the same live session.
 - Keep the `share` / `join` terminal open while pairing — that process holds the relay connection and updates local session state for MCP.
 - If Cursor shows an old session, run `pairrelay leave`, delete `~/.pairrelay/session-cache.json` if needed, re-join, and reload MCP.
 - The browser join page is install/join instructions only — live messages appear in the CLI and via MCP, not on that page.
-- Until the relay has durable storage, keep **one** Fly machine (`fly scale count 1`) so every join hits the same session memory.
+- With `DATABASE_URL` + `REDIS_URL` set, killing the Fly app machine mid-session keeps the transcript; both sides reconnect and resume. Keep **one** app machine until Redis pub/sub fans out live WebSocket events.

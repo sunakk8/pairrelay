@@ -21,6 +21,7 @@ export async function runPost(content: string, options: PostOptions = {}): Promi
     api_key: active.api_key ?? credentials?.api_key,
   };
 
+  // One-shot WS: connect, append, disconnect (share/join holds the long-lived socket).
   const client = new SessionClient(config);
   await client.connect();
 

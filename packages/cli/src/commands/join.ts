@@ -15,6 +15,7 @@ export async function runJoin(
   options: JoinOptions,
 ): Promise<void> {
   const relayUrl = await resolveRelayUrl(options.relayUrl);
+  // Cheap existence check before we write local state / open WS.
   await getSession(relayUrl, sessionId);
 
   if (!options.token) {
@@ -32,13 +33,10 @@ export async function runJoin(
     api_key: credentials?.api_key,
   };
 
-  await writeActiveSession(config);
-  console.log(`Active session written: ${ACTIVE_SESSION_PATH}`);
-  console.log(`  session_id: ${sessionId}`);
-
   const client = new SessionClient(config, { reconnect: true });
   attachClientLogging(client, "join");
 
+  // Same long-lived WS as share — MCP posts use a separate one-shot socket.
   await client.connectPersistent();
 
   console.log("");

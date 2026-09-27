@@ -6,6 +6,7 @@ export interface RelayAuthConfig {
   secret: string;
 }
 
+/** Static team keys from PAIRRELAY_RELAY_API_KEYS (comma-separated) plus HMAC secret. */
 export function loadRelayAuthConfig(): RelayAuthConfig {
   const rawKeys = process.env.PAIRRELAY_RELAY_API_KEYS ?? "";
   const apiKeys = new Set(
@@ -18,6 +19,7 @@ export function loadRelayAuthConfig(): RelayAuthConfig {
   return { apiKeys, secret };
 }
 
+/** Auth is off until a static key or GitHub OAuth is configured (local default). */
 export function authRequired(config: RelayAuthConfig): boolean {
   return config.apiKeys.size > 0 || githubOAuthEnabled();
 }

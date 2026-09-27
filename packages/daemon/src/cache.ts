@@ -7,6 +7,8 @@ import {
   type Session,
 } from "@pairrelay/shared";
 
+/** Local on-disk state under ~/.pairrelay: active pointer vs cached transcript. */
+
 export async function ensurePairrelayDir(): Promise<void> {
   await mkdir(PAIRRELAY_DIR, { recursive: true });
 }
@@ -30,6 +32,7 @@ export async function writeActiveSession(config: ActiveSessionConfig): Promise<v
   await writeFile(ACTIVE_SESSION_PATH, JSON.stringify(config, null, 2), "utf8");
 }
 
+/** Connection pointer (session id, relay URL, participant, tokens). */
 export async function readActiveSession(): Promise<ActiveSessionConfig | null> {
   try {
     const raw = await readFile(ACTIVE_SESSION_PATH, "utf8");
@@ -53,6 +56,7 @@ export async function clearActiveSession(): Promise<void> {
   }
 }
 
+/** Last WS snapshot/transcript for MCP get_session. */
 export async function readSessionCache(): Promise<Session | null> {
   try {
     const raw = await readFile(SESSION_CACHE_PATH, "utf8");

@@ -28,7 +28,7 @@ export async function writeCredentials(credentials: PairrelayCredentials): Promi
   await ensurePairrelayDir();
   await writeFile(CREDENTIALS_PATH, JSON.stringify(credentials, null, 2), {
     encoding: "utf8",
-    mode: 0o600,
+    mode: 0o600, // owner-only; this file is the API key
   });
 }
 

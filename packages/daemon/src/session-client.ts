@@ -32,6 +32,10 @@ export interface SessionClientEvents {
 
 const DEFAULT_MAX_RECONNECT_ATTEMPTS = 20;
 
+/**
+ * WebSocket client to a relay session.
+ * share/join keep this open with reconnect; MCP post_message uses a one-shot connect.
+ */
 export class SessionClient extends EventEmitter<SessionClientEvents> {
   private ws: WebSocket | null = null;
   private session: Session | null = null;
@@ -75,6 +79,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
     await this.connect();
   }
 
+  /** Send message.append; the relay persists + broadcasts. Local cache updates on the echo. */
   async postMessage(
     content: string,
     role: SessionMessage["role"] = "user",
@@ -107,6 +112,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
     this.ws = null;
   }
 
+  /** Tell the relay we left, then close. Used by share/join shutdown and `pairrelay leave`. */
   async leave(): Promise<void> {
     this.shouldReconnect = false;
     this.clearReconnectTimer();
@@ -133,6 +139,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
       }
 
       const ws = this.ws;
+      // connect() resolves on first open; later reconnects must not reject this promise.
       let settled = false;
 
       ws.once("open", () => {
@@ -166,6 +173,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
     });
   }
 
+  /** Exponential backoff, capped at 30s. Only runs when connectPersistent() set shouldReconnect. */
   private scheduleReconnect(): void {
     if (this.reconnectTimer) {
       return;
@@ -207,6 +215,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
     return url.toString();
   }
 
+  /** Apply relay events to in-memory session and rewrite session-cache.json for MCP. */
   private async handleMessage(raw: string): Promise<void> {
     let event: RelayEvent;
     try {
@@ -218,6 +227,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
 
     switch (event.type) {
       case "session.snapshot":
+        // Guard against a stale/wrong snapshot overwriting this machine's active session cache.
         if (event.session.session_id !== this.activeConfig.session_id) {
           this.emit(
             "error",
@@ -233,6 +243,7 @@ export class SessionClient extends EventEmitter<SessionClientEvents> {
         break;
       case "message.append":
         if (this.session) {
+          // Own posts are echoed back; skip if we already have that timestamp+content.
           const exists = this.session.messages.some(
             (m) => m.timestamp === event.message.timestamp && m.content === event.message.content,
           );

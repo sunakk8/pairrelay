@@ -19,7 +19,7 @@ export async function runLeave(): Promise<void> {
     await client.connect();
     await client.leave();
   } catch {
-    // relay unreachable — still clear local session state
+    // Relay unreachable — still clear local session state so MCP stops serving it.
   }
 
   await clearActiveSession();

@@ -9,6 +9,7 @@ packages/cli/README.md
 # Secrets & local env
 .env
 .env.*
+!.env.example
 
 # Editor / AI (machine-specific), keep project MCP config sticky
 .cursor/*
@@ -19,3 +20,6 @@ mcp-stderr.txt
 # OS
 .DS_Store
 Thumbs.db
+
+# Local Redis dump
+dump.rdb

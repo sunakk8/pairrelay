@@ -20,7 +20,9 @@ export interface IssuedApiKey {
   createdAt: string;
 }
 
+/** Pending GitHub OAuth round-trips (cliPort + nonce). One-shot, 10m TTL. */
 const oauthStates = new Map<string, OAuthState>();
+/** In-memory issued keys — lost on process restart (user re-logs in). */
 const issuedKeys = new Map<string, IssuedApiKey>();
 
 export function loadGitHubAuthConfig(): GitHubAuthConfig | null {
@@ -45,10 +47,12 @@ export function createOAuthState(cliPort: number): string {
   const nonce = randomBytes(16).toString("hex");
   const state = `${cliPort}:${nonce}`;
   oauthStates.set(state, { cliPort, nonce });
+  // One-shot CSRF token; drop after 10m even if the callback never arrives.
   setTimeout(() => oauthStates.delete(state), 10 * 60 * 1000);
   return state;
 }
 
+/** Consume (delete) state so a code cannot be replayed. */
 export function consumeOAuthState(state: string): OAuthState | null {
   const parsed = oauthStates.get(state);
   oauthStates.delete(state);
@@ -66,6 +70,7 @@ export function buildGitHubAuthorizeUrl(config: GitHubAuthConfig, state: string)
   return `https://github.com/login/oauth/authorize?${params}`;
 }
 
+/** Code → GitHub access token → login + email (emails API if profile has none). */
 export async function exchangeGitHubCode(
   config: GitHubAuthConfig,
   code: string,
@@ -109,6 +114,7 @@ export async function exchangeGitHubCode(
 
   let email = user.email ?? null;
   if (!email) {
+    // Public profile often has no email; fall back to the emails API.
     const emailsRes = await fetch("https://api.github.com/user/emails", {
       headers: {
         authorization: `Bearer ${tokenBody.access_token}`,
@@ -142,6 +148,7 @@ export function isIssuedApiKey(apiKey: string): boolean {
   return issuedKeys.has(apiKey);
 }
 
+/** Accept a static team key or a key issued via GitHub OAuth this process. */
 export function validateApiKeyWithOAuth(authConfig: RelayAuthConfig, apiKey: string | null): boolean {
   if (!apiKey) {
     return false;
@@ -152,6 +159,7 @@ export function validateApiKeyWithOAuth(authConfig: RelayAuthConfig, apiKey: str
   return issuedKeys.has(apiKey);
 }
 
+/** HMAC of the issued key — CLI checks this so a forged loopback redirect is rejected. */
 export function signCliCallback(apiKey: string, secret: string): string {
   return createHmac("sha256", secret).update(apiKey).digest("base64url");
 }

@@ -24,6 +24,7 @@ export async function runShare(options: ShareOptions): Promise<void> {
     api_key: credentials?.api_key,
   };
 
+  // MCP tools on this machine read this pointer + the WS-updated session cache.
   await writeActiveSession(config);
   console.log(`Active session written: ${ACTIVE_SESSION_PATH}`);
   console.log(`  session_id: ${created.session_id}`);
@@ -31,6 +32,7 @@ export async function runShare(options: ShareOptions): Promise<void> {
   const client = new SessionClient(config, { reconnect: true });
   attachClientLogging(client, "share");
 
+  // Hold the WS open for the lifetime of this CLI process (MCP posts use a separate socket).
   await client.connectPersistent();
 
   console.log("");
@@ -77,6 +79,7 @@ function attachClientLogging(client: SessionClient, label: string): void {
   });
 }
 
+/** Block until SIGINT/SIGTERM, then run leave + clear local active session. */
 function waitForShutdown(onShutdown: () => void | Promise<void>): Promise<void> {
   return new Promise((resolve) => {
     const shutdown = () => {

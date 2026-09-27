@@ -1,3 +1,7 @@
+/**
+ * Join tokens are HMAC-SHA256 over base64url(JSON payload): `payload.sig`.
+ * Bound to one session_id and an expiry (JOIN_TOKEN_TTL_MS).
+ */
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { JOIN_TOKEN_TTL_MS } from "@pairrelay/shared";
 
@@ -47,6 +51,7 @@ export function verifyJoinToken(
 
   const sigBuf = Buffer.from(sig);
   const expectedBuf = Buffer.from(expected);
+  // Length check first: timingSafeEqual throws if buffers differ in length.
   if (sigBuf.length !== expectedBuf.length || !timingSafeEqual(sigBuf, expectedBuf)) {
     return { valid: false, reason: "Invalid join token signature" };
   }
